@@ -1,0 +1,62 @@
+import heapq
+
+class Grafo:
+    def __init__(self):
+        self.nodos = set()
+        self.aristas = {}
+
+    def agregar_nodo(self, valor):
+        self.nodos.add(valor)
+        self.aristas[valor] = []
+
+    def agregar_arista(self, desde, hacia, peso):
+        self.aristas[desde].append((hacia, peso))
+        self.aristas[hacia].append((desde, peso))
+
+def calcular_camino_mas_corto(grafo, inicio, final):
+    cola_prioridad = [(0, inicio)]
+    distancias = {nodo: float('inf') for nodo in grafo.nodos}
+    distancias[inicio] = 0
+    camino_anterior = {}
+
+    while cola_prioridad:
+        distancia_actual, nodo_actual = heapq.heappop(cola_prioridad)
+
+        if nodo_actual == final:
+            camino = []
+            while nodo_actual:
+                camino.append(nodo_actual)
+                nodo_actual = camino_anterior.get(nodo_actual)
+            return camino[::-1]
+
+        if distancia_actual > distancias[nodo_actual]:
+            continue
+
+        for vecino, peso in grafo.aristas[nodo_actual]:
+            distancia = distancias[nodo_actual] + peso
+            if distancia < distancias[vecino]:
+                distancias[vecino] = distancia
+                camino_anterior[vecino] = nodo_actual
+                heapq.heappush(cola_prioridad, (distancia, vecino))
+
+    return None
+
+# Ejemplo de uso
+grafo = Grafo()
+grafo.agregar_nodo("A")
+grafo.agregar_nodo("B")
+grafo.agregar_nodo("C")
+grafo.agregar_nodo("D")
+grafo.agregar_arista("A", "B", 1)
+grafo.agregar_arista("A", "C", 3)
+grafo.agregar_arista("B", "D", 4)
+grafo.agregar_arista("C", "D", 2)
+
+inicio = "A"
+final = "D"
+camino_mas_corto = calcular_camino_mas_corto(grafo, inicio, final)
+
+if camino_mas_corto:
+    print(f"El camino más corto desde {inicio} a {final} es: {camino_mas_corto}")
+else:
+    print(f"No hay un camino válido desde {inicio} a {final}")
